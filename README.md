@@ -1,23 +1,21 @@
-# FreshDrop POS Pro V6 — Operations Expansion
+# FreshDrop POS V8.1 — Windows Desktop
 
-Based on FreshDrop POS Pro V5. Adds an Operations Centre for shift opening/closing and cash reconciliation, expense tracking (electricity/CEB, water, rent and other expenses), staff records, salary/advance/loan transactions, customer records/search, printer labels and a printable KOT test, open-cart overview/filtering, and operations JSON export.
+Run: `npm install` then `npm start`. Build installer: `npm run dist:win`.
 
-## Run locally
+## What's new in V8.1
+- New sidebar navigation (top scroll bar on small screens): Sell / Cash / People / Kitchen / Reports / System, with live badges (open orders, shift LIVE).
+- Operations split into one screen per tool: Dining floor, Open orders, Shift, Expenses, Staff, Salary/advances/loans, Customers, KOT/printers, Customer & expense reports.
+- Staff can use Floor, Open orders, Shift, Customers; money screens stay admin-only.
+- New: charge from floor/open orders, KOT prints only NEW items, KOT split per printer by menu category, bill photos on expenses, backdated expenses, staff edit, payroll hints, per-waiter sales, customer visits/spend, CSV exports.
 
-Serve this folder with a local web server because the POS uses JavaScript modules:
+## Bugs fixed
+- Data was lost on every restart (random localhost port). Now a fixed port + single instance. NOTE: data from earlier V8 alpha runs cannot be recovered.
+- Merge/split of orders was overwritten by the cart screen (could duplicate items). Now one shared data path.
+- Receipt print, KOT print, stock edit, add ingredient, rename, bulk price: used window.open/prompt, which Electron blocks. Replaced.
+- Voiding a mixed cash+card sale corrupted drawer totals.
+- Waiter assignment was not backed up/restored, never cleared after payment, and not saved on receipts.
+- html2pdf now bundled locally (works offline). Service worker now caches operations.js.
+- Close Day warns if a shift is still open.
 
-```bash
-python -m http.server 8000
-```
-
-Open `http://localhost:8000`.
-
-## Important scope notes
-
-- This remains a browser-local application. Different devices do not share data and there is no server database or multi-cashier synchronization.
-- The new shift reconciliation estimates cash sales from the existing saved transaction data. Test it against your real receipt fields before relying on shift totals.
-- Staff/customer management and expenses are operational records, but staff assignment is not yet wired into the original checkout flow.
-- The open-order panel is an overview/filter of saved carts; merge/split bill actions are not yet integrated into the checkout/cart model.
-- KOT test printing uses the browser print dialog. Automatic routing to multiple physical printers usually requires a local print bridge or backend and printer-specific setup.
-- The POS backup function includes the new operations keys; the Operations Centre also provides a separate JSON export. Keep backup files outside the POS device.
-- JavaScript syntax/static checks are not a substitute for end-to-end browser tests. Use sample data before live restaurant sales.
+## Still not done (be honest with customers)
+localStorage only (no SQLite), single device, no silent printer routing (you pick the printer in the print dialog), no licensing. Test every flow with sample data and your real printers before live sales.
