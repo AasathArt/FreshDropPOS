@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+  <meta name="theme-color" content="#2e7d32">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Fresh Drop POS">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>FreshDrop POS V8.1</title>
+  <link rel="stylesheet" href="style.css?v=81">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <script src="vendor/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div id="posView" class="view active">
+      <header class="pos-header">
+        <div class="logo-area">
+          <img src="assets/logo.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
+          <div class="user-badge">
+            <select id="roleSwitcher" class="role-select">
+              <option value="staff">🥤 Staff Mode</option>
+              <option value="admin">👑 Admin Mode</option>
+            </select>
+          </div>
+        </div>
+        <div class="header-buttons">
+          <button id="manageTablesBtn" class="icon-btn" title="Manage Tables">🗂️</button>
+          <button id="manageItemsBtn" class="icon-btn" title="Manage Menu Items">📝</button>
+          <button id="managePricesBtn" class="icon-btn" title="Manage Prices">💰</button>
+          <button id="resetAllBtn" class="icon-btn" title="Reset All Data">🔄</button>
+        </div>
+      </header>
+
+      <!-- Install App Banner -->
+      <div id="installBanner" class="install-banner" style="display: none;">
+        <div class="install-banner-content">
+          <img src="assets/logo.png" alt="Logo" class="banner-logo" onerror="this.style.display='none'">
+          <div class="install-text">
+            <strong>Fresh Drop POS</strong>
+            <small>Install app for faster access</small>
+          </div>
+          <button id="installAppBtn" class="install-btn">Install</button>
+          <button id="closeBannerBtn" class="close-banner-btn">✕</button>
+        </div>
+      </div>
+
+      <div class="shell">
+        <nav class="tab-bar" id="mainNav" aria-label="Main navigation">
+        <div class="nav-group">Sell</div>
+        <button type="button" data-tab="orders" class="tab-btn active"><span class="nav-ico" aria-hidden="true">📋</span><span class="nav-text"><span class="nl-full">New order / Cart</span><span class="nl-short">Orders</span></span></button>
+        <button type="button" data-tab="operations" data-section="floor" class="tab-btn"><span class="nav-ico" aria-hidden="true">🪑</span><span class="nav-text"><span class="nl-full">Dining floor & live order tools</span><span class="nl-short">Floor</span></span><span class="nav-badge" data-badge="floor" hidden></span></button>
+        <button type="button" data-tab="operations" data-section="open" class="tab-btn"><span class="nav-ico" aria-hidden="true">🧾</span><span class="nav-text"><span class="nl-full">Open order overview</span><span class="nl-short">Open orders</span></span><span class="nav-badge" data-badge="open" hidden></span></button>
+        <div class="nav-group">Cash</div>
+        <button type="button" data-tab="operations" data-section="shift" class="tab-btn"><span class="nav-ico" aria-hidden="true">🕒</span><span class="nav-text"><span class="nl-full">Shift open / close</span><span class="nl-short">Shift</span></span><span class="nav-badge" data-badge="shift" hidden></span></button>
+        <button type="button" data-tab="operations" data-section="expenses" data-admin-only class="tab-btn"><span class="nav-ico" aria-hidden="true">💸</span><span class="nav-text"><span class="nl-full">Expenses</span><span class="nl-short">Expenses</span></span></button>
+        <div class="nav-group">People</div>
+        <button type="button" data-tab="operations" data-section="staff" data-admin-only class="tab-btn"><span class="nav-ico" aria-hidden="true">👥</span><span class="nav-text"><span class="nl-full">Staff management</span><span class="nl-short">Staff</span></span></button>
+        <button type="button" data-tab="operations" data-section="payroll" data-admin-only class="tab-btn"><span class="nav-ico" aria-hidden="true">💵</span><span class="nav-text"><span class="nl-full">Staff salary, advances & loans</span><span class="nl-short">Payroll</span></span></button>
+        <button type="button" data-tab="operations" data-section="customers" class="tab-btn"><span class="nav-ico" aria-hidden="true">🧑</span><span class="nav-text"><span class="nl-full">Customer records</span><span class="nl-short">Customers</span></span></button>
+        <div class="nav-group">Kitchen</div>
+        <button type="button" data-tab="operations" data-section="printers" data-admin-only class="tab-btn"><span class="nav-ico" aria-hidden="true">🍳</span><span class="nav-text"><span class="nl-full">KOT / printer setup</span><span class="nl-short">Printers</span></span></button>
+        <button type="button" data-tab="stock" class="tab-btn"><span class="nav-ico" aria-hidden="true">📦</span><span class="nav-text"><span class="nl-full">Stock</span><span class="nl-short">Stock</span></span></button>
+        <div class="nav-group">Reports</div>
+        <button type="button" data-tab="reports" class="tab-btn"><span class="nav-ico" aria-hidden="true">📊</span><span class="nav-text"><span class="nl-full">Sales reports</span><span class="nl-short">Sales</span></span></button>
+        <button type="button" data-tab="operations" data-section="reports" data-admin-only class="tab-btn"><span class="nav-ico" aria-hidden="true">📈</span><span class="nav-text"><span class="nl-full">Customer & expense reports</span><span class="nl-short">Reports</span></span></button>
+        <div class="nav-group">System</div>
+        <button type="button" data-tab="admin" class="tab-btn"><span class="nav-ico" aria-hidden="true">⚙️</span><span class="nav-text"><span class="nl-full">Admin & backup</span><span class="nl-short">Admin</span></span></button>
+        </nav>
+        <main class="main-area" id="mainArea">
+      <div id="ordersTab" class="tab-content active">
+        <div class="tables-bar">
+          <div class="table-scroll" id="tablesContainer"></div>
+        </div>
+        <div class="category-bar" id="categoryBar"></div>
+        <div class="menu-grid" id="menuGrid"></div>
+        <div class="cart-panel">
+          <div class="cart-header">
+            <span>🛒 Current Cart · <span id="currentTableName">Table 1</span></span>
+            <button id="clearCartBtn" class="small-btn">Clear</button>
+          </div>
+          <div id="cartItems" class="cart-list"></div>
+          <div class="cart-total">TOTAL: LKR <span id="cartTotal">0</span></div>
+          <button id="checkoutBtn" class="btn btn-primary">✅ CHECKOUT & PAY</button>
+        </div>
+      </div>
+
+      <div id="stockTab" class="tab-content">
+        <div class="search-bar"><input type="text" id="stockSearch" placeholder="🔍 Search ingredient..."></div>
+        <div class="low-stock-banner" id="lowStockBanner"></div>
+        <div id="stockList" class="stock-list"></div>
+        <div style="margin-top: 1rem; display: flex; gap: 0.6rem; flex-wrap: wrap;">
+          <button id="addIngredientBtn" class="btn btn-outline">➕ Add Ingredient</button>
+          <button id="recordPurchaseBtn" class="btn btn-outline">🛒 Record Purchase</button>
+        </div>
+      </div>
+
+      <div id="reportsTab" class="tab-content">
+        <div class="dashboard-cards" id="dashboardCards"></div>
+        <div class="report-buttons">
+          <button id="dailyReportBtn" class="btn btn-small">📅 Daily Report</button>
+          <button id="weeklyReportBtn" class="btn btn-small">📆 Weekly Report</button>
+          <button id="monthlyReportBtn" class="btn btn-small">📈 Monthly Report</button>
+          <button id="profitTrendBtn" class="btn btn-small" style="background: #4caf50;">📈 Profit Trend</button>
+        </div>
+        <div class="report-buttons">
+          <select id="insightPeriod" class="btn btn-small"><option value="today">Today</option><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="all">All time</option></select>
+          <button id="insightsBtn" class="btn btn-small" style="background:#2196f3;">🔎 Insights</button>
+          <button id="exportReceiptsBtn" class="btn btn-small" style="background:#607d8b;">⬇️ Receipts CSV</button>
+          <button id="exportDaysBtn" class="btn btn-small" style="background:#607d8b;">⬇️ Daily CSV</button>
+          <button id="exportStockLogBtn" class="btn btn-small" style="background:#607d8b;">⬇️ Stock log CSV</button>
+        </div>
+        <div id="reportDisplay" class="report-display"></div>
+      </div>
+
+      <div id="operationsTab" class="tab-content">
+        <header class="ops-page-head">
+          <div>
+            <p class="ops-kicker" id="opsKicker">SELL</p>
+            <h2 id="opsTitle">Dining floor & live order tools</h2>
+            <p id="opsDesc"></p>
+          </div>
+          <span class="ops-local-badge" title="Data lives in this computer's app storage. Use Admin → Backup regularly.">💾 Saved on this computer</span>
+        </header>
+
+        <!-- 1. DINING FLOOR -->
+        <section class="ops-section" data-ops-section="floor">
+          <div class="ops-split ops-split-wide">
+            <div class="ops-panel">
+              <div class="ops-legend"><span><i class="dot dot-free"></i>Free</span><span><i class="dot dot-busy"></i>Occupied</span><span><i class="dot dot-sel"></i>Selected</span></div>
+              <div id="floorPlan" class="floor-plan"></div>
+            </div>
+            <div class="ops-panel" id="floorDetail"></div>
+          </div>
+        </section>
+
+        <!-- 2. SHIFT -->
+        <section class="ops-section" data-ops-section="shift">
+          <div class="ops-split">
+            <div class="ops-panel">
+              <div id="shiftBanner" class="shift-banner"></div>
+              <div id="shiftOpenBox">
+                <div class="ops-form-grid">
+                  <label>Cashier / staff<input id="shiftStaff" list="staffNames" placeholder="Who is on the till?" autocomplete="off"></label>
+                  <label>Opening cash in drawer (LKR)<input id="shiftOpening" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+                </div>
+                <div class="ops-actions"><button id="openShiftBtn" type="button" class="btn btn-primary">▶ Open shift</button></div>
+              </div>
+              <div id="shiftCloseBox" hidden>
+                <div id="shiftLive" class="ops-result"></div>
+                <div class="ops-form-grid">
+                  <label>Cash counted in drawer (LKR)<input id="shiftCounted" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Count the cash, then type it here"></label>
+                  <label>Note (optional)<input id="shiftNote" placeholder="e.g. 500 note given as change"></label>
+                </div>
+                <div class="ops-actions"><button id="closeShiftBtn" type="button" class="btn btn-danger">■ Close shift & reconcile</button></div>
+              </div>
+              <datalist id="staffNames"></datalist>
+            </div>
+            <div class="ops-panel"><h3>Recent shifts</h3><div id="shiftHistory"></div></div>
+          </div>
+        </section>
+
+        <!-- 3. EXPENSES -->
+        <section class="ops-section" data-ops-section="expenses">
+          <div class="ops-split">
+            <form id="expenseForm" class="ops-panel">
+              <h3>Record an expense</h3>
+              <div class="ops-form-grid">
+                <label>Expense type<select id="expenseType"><option>CEB / Electricity</option><option>Water bill</option><option>Rent</option><option>Internet / Phone</option><option>Supplies</option><option>Repairs</option><option>Transport</option><option>Other</option></select></label>
+                <label>Amount (LKR)<input id="expenseAmount" type="number" min="0.01" step="0.01" required inputmode="decimal"></label>
+                <label>Bill date<input id="expenseDate" type="date" required></label>
+                <label>Paid by<select id="expensePayment"><option>Cash</option><option>Card</option><option>Bank transfer</option></select></label>
+                <label class="span-2">Note<input id="expenseNote" placeholder="Bill number / details"></label>
+                <label class="span-2">Bill photo (optional)<input id="expenseBill" type="file" accept="image/*"></label>
+              </div>
+              <p class="ops-help">Cash expenses are deducted from the drawer in shift reconciliation.</p>
+              <div class="ops-actions"><button class="btn btn-primary" type="submit">Record expense</button></div>
+            </form>
+            <div class="ops-panel">
+              <div class="ops-toolbar">
+                <label>Month<input id="expenseMonth" type="month"></label>
+                <label>Type<select id="expenseFilterType"><option value="">All types</option></select></label>
+              </div>
+              <div id="expenseTotal" class="ops-result"></div>
+              <div id="expenseList"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. STAFF -->
+        <section class="ops-section" data-ops-section="staff">
+          <div class="ops-split">
+            <form id="staffForm" class="ops-panel">
+              <h3 id="staffFormTitle">Add staff member</h3>
+              <input type="hidden" id="staffEditId">
+              <div class="ops-form-grid">
+                <label>Staff name<input id="staffName" required autocomplete="off"></label>
+                <label>Role<select id="staffRole"><option>Waiter</option><option>Cashier</option><option>Kitchen</option><option>Manager</option><option>Other</option></select></label>
+                <label>Phone<input id="staffPhone" type="tel"></label>
+                <label>Monthly salary (LKR)<input id="staffSalary" type="number" min="0" step="0.01" value="0" inputmode="decimal"></label>
+              </div>
+              <div class="ops-actions"><button id="staffSubmit" class="btn btn-primary" type="submit">Add staff</button><button id="staffCancel" class="btn btn-outline" type="button" hidden>Cancel edit</button></div>
+            </form>
+            <div class="ops-panel"><h3>Team</h3><div id="staffList"></div></div>
+          </div>
+        </section>
+
+        <!-- 5. PAYROLL -->
+        <section class="ops-section" data-ops-section="payroll">
+          <div class="ops-split">
+            <form id="payForm" class="ops-panel">
+              <h3>Salary, advance or loan</h3>
+              <div class="ops-form-grid">
+                <label>Staff<select id="payStaff" required></select></label>
+                <label>Type<select id="payType"><option>Salary payment</option><option>Advance</option><option>Loan issued</option><option>Loan repayment</option></select></label>
+                <label>For month<input id="payMonth" type="month"></label>
+                <label>Amount (LKR)<input id="payAmount" type="number" min="0.01" step="0.01" required inputmode="decimal"></label>
+                <label>Money went through<select id="payFrom"><option value="drawer">Cash drawer</option><option value="other">Bank / other (not drawer)</option></select></label>
+                <label>Note<input id="payNote"></label>
+              </div>
+              <div id="payHint" class="ops-result"></div>
+              <div class="ops-actions"><button class="btn btn-primary" type="submit">Save transaction</button></div>
+            </form>
+            <div class="ops-panel">
+              <div class="ops-toolbar"><label>Show<select id="payFilterStaff"><option value="">Everyone</option></select></label></div>
+              <div id="payList"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. CUSTOMERS -->
+        <section class="ops-section" data-ops-section="customers">
+          <div class="ops-split">
+            <form id="customerForm" class="ops-panel">
+              <h3 id="customerFormTitle">Save a customer</h3>
+              <input type="hidden" id="customerEditId">
+              <div class="ops-form-grid">
+                <label>Customer name<input id="opsCustomerName" required autocomplete="off"></label>
+                <label>Phone<input id="opsCustomerPhone" type="tel"></label>
+                <label>Email / other contact<input id="opsCustomerContact"></label>
+                <label>Notes<input id="opsCustomerNote" placeholder="Allergies, favourite drink…"></label>
+              </div>
+              <div class="ops-actions"><button id="customerSubmit" class="btn btn-primary" type="submit">Save customer</button><button id="customerCancel" class="btn btn-outline" type="button" hidden>Cancel edit</button><button id="importCustomersBtn" class="btn btn-outline" type="button">Import names from past receipts</button></div>
+            </form>
+            <div class="ops-panel">
+              <div class="ops-toolbar"><label>Search<input id="customerSearch" placeholder="Name or phone" autocomplete="off"></label></div>
+              <div id="customerList"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. PRINTERS -->
+        <section class="ops-section" data-ops-section="printers">
+          <div class="ops-split">
+            <form id="printerForm" class="ops-panel">
+              <h3>Printer names</h3>
+              <p class="ops-help">These names print on each ticket so staff know which printer to pick in the print dialog. The app cannot silently choose a physical printer.</p>
+              <div class="ops-form-grid">
+                <label>Kitchen printer 1<input id="printerKitchen1" placeholder="e.g. Kitchen Hot Line"></label>
+                <label>Kitchen printer 2<input id="printerKitchen2" placeholder="e.g. Drinks Station"></label>
+                <label>Cashier printer<input id="printerCashier" placeholder="e.g. Front Counter"></label>
+                <label>KOT footer<input id="printerFooter" placeholder="e.g. No changes after preparation"></label>
+              </div>
+              <div class="ops-actions"><button class="btn btn-primary" type="submit">Save printer settings</button><button class="btn btn-outline" id="printKotTest" type="button">🖨️ Print KOT test</button></div>
+              <div class="ops-result" id="printerStatus" hidden></div>
+            </form>
+            <div class="ops-panel"><h3>Which printer gets which menu category?</h3><p class="ops-help">A KOT is split into one ticket per printer, based on the category of each item.</p><div id="routeList"></div></div>
+          </div>
+        </section>
+
+        <!-- 8. OPEN ORDERS -->
+        <section class="ops-section" data-ops-section="open">
+          <div class="ops-panel">
+            <div class="ops-toolbar">
+              <label>Order type<select id="openOrderType"><option value="all">All types</option><option value="dining">Dining</option><option value="takeaway">Takeaway</option></select></label>
+              <label>Assigned staff<select id="openOrderStaff"><option value="">Anyone</option></select></label>
+            </div>
+            <div id="openSummary" class="ops-result"></div>
+            <div id="openOrderList"></div>
+          </div>
+        </section>
+
+        <!-- 9. REPORTS -->
+        <section class="ops-section" data-ops-section="reports">
+          <div class="ops-panel">
+            <div class="ops-toolbar">
+              <label>Period<select id="reportPeriod"><option value="month" selected>This month</option><option value="lastmonth">Last month</option><option value="today">Today</option><option value="30">Last 30 days</option><option value="all">All time</option></select></label>
+            </div>
+            <div id="opsReports"></div>
+            <div class="ops-actions"><button id="exportExpensesCsvBtn" class="btn btn-outline" type="button">⬇️ Expenses CSV</button><button id="exportCustomersCsvBtn" class="btn btn-outline" type="button">⬇️ Customers CSV</button><button id="exportOpsBtn" class="btn btn-outline" type="button">⬇️ All operations data (JSON)</button></div>
+          </div>
+        </section>
+      </div>
+
+
+      <div id="adminTab" class="tab-content">
+        <div class="admin-section">
+          <h3>🔐 Admin Control</h3>
+          <button id="resetDayBtn" class="btn btn-warning">🔄 Reset Day</button>
+          <button id="closeDayBtn" class="btn btn-danger">🏁 CLOSE DAY & ARCHIVE</button>
+          <div class="history-viewer">
+            <h4>📜 Previous Days History</h4>
+            <div id="historyList" class="history-list"></div>
+          </div>
+        </div>
+      </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALS -->
+  <div id="receiptModal" class="modal"><div class="modal-content"><span class="close">&times;</span><div id="receiptContent"></div><div class="receipt-buttons"><button id="printReceiptBtn" class="btn btn-primary">🖨️ Print</button><button id="pdfReceiptBtn" class="btn btn-primary">📄 PDF</button><button id="whatsappReceiptBtn" class="btn btn-success">💬 WhatsApp</button></div></div></div>
+  <div id="tablesModal" class="modal"><div class="modal-content"><span class="close-tables">&times;</span><h2>Manage Tables</h2><div id="tablesList"></div><button id="addTableBtn" class="btn btn-primary">➕ Add Table</button><button id="saveTablesBtn" class="btn btn-primary" style="margin-top:10px;">💾 Save Tables</button></div></div>
+  <div id="itemsModal" class="modal"><div class="modal-content"><span class="close-items">&times;</span><h2>Manage Menu Items</h2><div id="itemsListContainer"></div><button id="addNewItemBtn" class="btn btn-primary">➕ Add New Item</button></div></div>
+  <div id="itemFormModal" class="modal"><div class="modal-content"><span class="close-item-form">&times;</span><h2 id="itemFormTitle">Add New Item</h2><form id="itemForm"><input type="hidden" id="itemId"><div class="form-group"><label>Item Name:</label><input type="text" id="itemName" required></div><div class="form-group"><label>Price (LKR):</label><input type="number" id="itemPrice" required></div><div class="form-group"><label>Category:</label><select id="itemCategory" required><option value="fresh_juice">Fresh Juice</option><option value="milkshake">Milkshake</option><option value="special_drink">Special Drink</option><option value="seasonal_special">Seasonal Special</option></select></div><div class="form-group"><label>Ingredients:</label><div id="ingredientsList"></div><button type="button" id="addIngredientFieldBtn" class="btn btn-small">+ Add Ingredient</button></div><button type="submit" class="btn btn-primary">💾 Save Item</button></form></div></div>
+  <div id="customerModal" class="modal"><div class="modal-content"><h2>Customer Information</h2><div class="form-group"><label>Customer Name:</label><input type="text" id="customerName" list="customerNames" autocomplete="off" placeholder="Enter customer name" required><datalist id="customerNames"></datalist></div>
+    <div class="form-group"><label>Payment:</label><select id="paymentMethod"><option value="cash">💵 Cash</option><option value="card">💳 Card</option><option value="transfer">🏦 Bank transfer</option><option value="mixed">💵 + 💳 Mixed cash/card</option></select></div><div id="mixedPaymentFields" class="form-group" style="display:none"><label>Cash amount (LKR)</label><input type="number" id="paymentCashAmount" min="0" step="0.01" value="0"><label>Card amount (LKR)</label><input type="number" id="paymentCardAmount" min="0" step="0.01" value="0"><small>Cash + card must equal the final bill total.</small></div>
+    <div class="form-group"><label>Discount:</label><select id="discountType"><option value="none">None</option><option value="percent">Percent (%)</option><option value="amount">Amount (LKR)</option><option value="free">Complimentary (free)</option></select></div>
+    <div id="discountFields" style="display:none;">
+      <div class="form-group" id="discountValueGroup"><label>Value:</label><input type="number" id="discountValue" min="0" step="any" inputmode="decimal"></div>
+      <div class="form-group"><label>Reason (required):</label><input type="text" id="discountReason" maxlength="80" placeholder="e.g. regular customer, staff, complaint"></div>
+    </div>
+    <div id="checkoutSummary" style="font-weight:700; margin:10px 0;"></div>
+    <button id="confirmCustomerBtn" class="btn btn-primary">Generate Receipt</button></div></div>
+
+  <script type="module" src="app.js?v=81"></script>
+  <script type="module" src="operations.js?v=81"></script>
+  <script>if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Offline cache unavailable', err)));</script>
+</body>
+</html>
